@@ -1,0 +1,16 @@
+date;
+rm *.o *.so
+# g++ -std=c++14 -c -fPIC mm_ijk.cpp;
+# g++ -std=c++14 -c -fPIC mm_ikj.cpp;
+# g++ -std=c++14 -c -fPIC mm_jik.cpp;
+g++ -std=c++14 -c -fPIC mm_jki.cpp;
+g++ -std=c++14 -c -fPIC mm_kij.cpp;
+# g++ -std=c++14 -c -fPIC mm_kji.cpp;
+g++ -shared -o libmm.so mm_kij.o mm_jki.o 
+echo "Built shared object library";
+ls -lstr libmm.so;
+g++ -std=c++14 -o main main.cpp libmm.so -L. -lmm
+g++ -std=c++14 -o3 -o main-o3 main.cpp libmm.so -L. -lmm
+g++ -std=c++14 -ffast-math -o main-ffast-math main.cpp libmm.so -L. -lmm
+echo "Built program binary"
+ls -lstr main main-o3 main-ffast-math;

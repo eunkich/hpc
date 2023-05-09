@@ -1,0 +1,11 @@
+date;
+rm *.o
+g++ -std=c++14 -c -fPIC axpy.cpp;
+g++ -std=c++14 -c -fPIC gemv.cpp;
+g++ -std=c++14 -c -fPIC gemm.cpp;
+g++ -shared -o librefBLAS.so axpy.o gemv.o gemm.o
+echo "Built shared object library";
+ls -lstr librefBLAS.so;
+g++ -std=c++14 -o hw2a main.cpp librefBLAS.so -L. -lrefBLAS
+echo "Built program binary"
+ls -lstr hw2a;
