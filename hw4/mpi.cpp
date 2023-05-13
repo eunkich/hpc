@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <chrono>
 #include <mpi.h>
 #include <stdio.h>
 #include <math.h>
