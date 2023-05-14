@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <chrono>
 #include <unordered_map>
 #include <random>
 #include <mpi.h>
