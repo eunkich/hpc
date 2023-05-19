@@ -9,9 +9,9 @@
 
 const int MAX_TIME_OUT = 20;
 
-const int num_clients = 100;
 const int num_floors = 20;
-const int capacity = 10;
+int num_clients = 100;
+int capacity = 10;
 int done = 0;
 
 // For selecting random loc and dest of passengers
@@ -209,6 +209,23 @@ void elevator(int id)
             else // find dir
             {
                 min_dist = num_floors;
+                if (elev_pass[id] == 0) // remove invalid req
+                {
+                    std::set<int> to_erase;
+                    for (auto f : dest)
+                    {
+                        if ((to_erase.find(f) == to_erase.end()) and (apt[f] == 0))
+                        {
+                            to_erase.insert(f);
+                        }
+                    }
+                    for (auto f : to_erase)
+                    {
+                        dest.erase(f);
+                    }
+                    to_erase.clear();
+                }
+
                 for (auto f : dest)
                 {
                     if (abs(f - loc) < min_dist)
@@ -217,7 +234,6 @@ void elevator(int id)
                         min_dist = abs(f - loc);
                     }
                 }
-
                 dir = (nearest - loc) / abs(nearest - loc);
             }
 
@@ -272,12 +288,21 @@ void watch()
            << elev_pass[0] << ", "
            << elev_pass[1] << ", "
            << elev_pass[2] << ") \n"
-           << "  cum pass  : ("
+           << " cum pass   : ("
            << elev_pass_cum[0] << ", "
            << elev_pass_cum[1] << ", "
            << elev_pass_cum[2] << ") \n";
 
     myfile << " done       : " << done << "\n";
+    for (int i = 0; i < 3; i++)
+    {
+        myfile << " elev " << i << " pass: {";
+        for (auto &e : elev_pass_id[i])
+        {
+            myfile << e << ", ";
+        }
+        myfile << "}\n";
+    }
     myfile << " pd up req  : {";
     for (auto &e : uniq_call_up)
     {
@@ -312,13 +337,15 @@ void watch()
     myfile.close();
 }
 
-int main()
+int main(int argc, char **argv)
 {
-    // for (int i = 0; i < num_floors; i++)
-    // {
-    //     up.push_back({});
-    //     down.push_back({});
-    // }
+    if (argc != 3)
+    {
+        printf("Usage: %s [num_clients] [capacity]\n", argv[0]);
+        return 1;
+    }
+    num_clients = atoi(argv[1]);
+    capacity = atoi(argv[2]);
 
     // Spawn clients
     std::vector<std::thread> threads(num_clients);
@@ -334,8 +361,8 @@ int main()
     t0.detach();
     t1.detach();
     t2.detach();
-    using fps = std::chrono::duration<double, std::ratio<1, 5>>;
 
+    using fps = std::chrono::duration<double, std::ratio<1, 5>>;
     std::ofstream myfile;
     myfile.open("monitor.txt");
 
@@ -343,13 +370,11 @@ int main()
     while (t < 10 * MAX_TIME_OUT)
     {
         // Monitor progress
-
         watch();
         std::this_thread::sleep_for(fps(1));
         t++;
-
         {
-            std::lock_guard<std::mutex> lock(m_data);
+            std::unique_lock<std::mutex> lock(m_data);
             if (done == num_clients)
             {
                 break;
