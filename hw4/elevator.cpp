@@ -16,7 +16,7 @@ int done = 0;
 
 // For selecting random loc and dest of passengers
 std::mt19937_64 rng(std::random_device{}());
-std::uniform_int_distribution<int> dist(0, num_floors);
+std::uniform_int_distribution<int> dist(0, num_floors - 1);
 
 std::vector<int> elev_loc = {0, 0, 0};
 std::vector<int> elev_dir = {0, 0, 0};
@@ -41,43 +41,37 @@ void client(int id)
     {
         int end = dist(rng);
     }
-    bool requested = false;
 
     int dir = (end - start) / abs(end - start);
 
     // uniform random arrival 0 ~ 5 sec.
     std::this_thread::sleep_for(std::chrono::milliseconds(dist(rng) / 20 * 1000 * 5));
 
-    if (not requested) // call elev
+    m_cout.lock();
+    std::cout << "(TID:" << std::this_thread::get_id() << ") "
+              << "Person " << id
+              << " wants to go from floor " << start
+              << " to floor " << end << "\n";
+    m_cout.unlock();
+
     {
-        m_cout.lock();
-        std::cout << "(TID:" << std::this_thread::get_id() << ") "
-                  << "Person " << id
-                  << " wants to go from floor " << start
-                  << " to floor " << end << "\n";
-        m_cout.unlock();
-
+        std::unique_lock<std::mutex> lock(m_data);
+        apt[start]++;
+        if (end - start > 0)
         {
-            std::unique_lock<std::mutex> lock(m_data);
-            apt[start]++;
-            if (end - start > 0)
-            {
-                uniq_call_up.insert(start);
-            }
-            else if (end - start < 0)
-            {
-                uniq_call_down.insert(start);
-            }
-            else
-            {
-                done += 1;
-                m_data.unlock();
-                cv.notify_all();
-                return;
-            }
+            uniq_call_up.insert(start);
         }
-
-        requested = true;
+        else if (end - start < 0)
+        {
+            uniq_call_down.insert(start);
+        }
+        else
+        {
+            done += 1;
+            m_data.unlock();
+            cv.notify_all();
+            return;
+        }
     }
 
     int eid;
@@ -245,7 +239,6 @@ void elevator(int id)
                           << " moving from " << loc
                           << " to " << nearest << std::endl;
             }
-
             m_cout.unlock();
 
             loc += dir;
@@ -269,7 +262,7 @@ void elevator(int id)
 
 void watch()
 {
-    std::lock_guard<std::mutex> lock(m_data);
+    std::unique_lock<std::mutex> lock(m_data);
     std::ofstream myfile;
     myfile.open("monitor.txt", std::ios_base::app);
 
@@ -320,7 +313,7 @@ void watch()
     myfile << "------------------------\n";
 
     // draw apartment
-    for (int i = num_floors; i > 0; i--)
+    for (int i = num_floors - 1; i >= 0; i--)
     {
         myfile << " ";
         myfile.width(2);
