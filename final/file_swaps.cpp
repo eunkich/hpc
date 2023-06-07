@@ -42,6 +42,8 @@ int main(int argc, char **argv)
     const int MAX_DIMENSION = 16384;
     const int NTRIALS = 3;
 
+    std::cout << "dim,i,j,swapRowsInFile,swapColsInFile\n";
+
     for (int N = MIN_DIMENSION; N <= MAX_DIMENSION; N *= 2)
     {
         numCols = N;

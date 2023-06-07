@@ -3,7 +3,7 @@
 #include <chrono>
 #include <random>  // std::rand
 #include <utility> // std::pair, std::make_pair
-#include "mem-swaps.hpp"
+#include "mem_swaps.hpp"
 
 std::pair<int, int> getRandomIndices(int n)
 {

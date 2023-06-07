@@ -1,2 +1,2 @@
-g++ -o xmem-swaps mem-swaps.cpp
-./xmem-swaps | tee mem-swaps.csv
+g++ -o xmem_swaps mem_swaps.cpp
+./xmem_swaps | tee mem_swaps.csv
