@@ -20,9 +20,12 @@
 # <e.g., module load singularity>
 module load cuda
 
+rm *.csv
+
 # Your programs to run.
 source build_oblas_cublas.sh;
 source build_mem_swaps.sh;
 source build_file_swaps.sh;
+source cpu_gpu_bw.sh;
 
 rm *.o x*

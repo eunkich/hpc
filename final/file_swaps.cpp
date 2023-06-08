@@ -40,7 +40,7 @@ int main(int argc, char **argv)
     int numRows, numCols;
     const int MIN_DIMENSION = 16;
     const int MAX_DIMENSION = 16384;
-    const int NTRIALS = 3;
+    const int NTRIALS = 10;
 
     std::cout << "dim,i,j,swapRowsInFile,swapColsInFile\n";
 
