@@ -15,7 +15,7 @@ int main()
 
     const int MIN_DIMENSION = 16;
     const int MAX_DIMENSION = 8192;
-    const int NTRIALS = 3;
+    const int NTRIALS = 10;
 
     // Allocate host memory for square matrices
     double *h_A = new double[MAX_DIMENSION * MAX_DIMENSION];
